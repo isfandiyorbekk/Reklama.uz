@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 
 function Elonlar() {
   const { search, setSearch } = useContext(SearchContext);
-
   return (
     <div className="bg-[#F4F5F7] min-h-screen pb-12">
       <div className="md:hidden px-4 pt-4 pb-2">
