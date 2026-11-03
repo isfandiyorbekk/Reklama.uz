@@ -1,20 +1,26 @@
 import { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 export const SearchContext = createContext();
 
 export function SearchProvider({ children }) {
-  const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
   const navigate = useNavigate();
 
   function handleSearch(value) {
-    setSearch(value);
-
-    if (window.location.pathname !== "/") {
-      navigate("/");
-    }
+    if (!value.trim()) return;
+    setSubmittedSearch(value);
+    navigate("/SeacherPage");
   }
+
   return (
-    <SearchContext.Provider value={{ search, setSearch, handleSearch }}>
+    <SearchContext.Provider
+      value={{
+        handleSearch,
+        submittedSearch,
+        setSubmittedSearch,
+      }}
+    >
       {children}
     </SearchContext.Provider>
   );

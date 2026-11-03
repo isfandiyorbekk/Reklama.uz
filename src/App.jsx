@@ -7,6 +7,7 @@ import Xizmatlar from "./pages/Footer/Xizmatlar";
 import BizHaqimizda from "./pages/Footer/BizHaqimizda";
 import ElonQoshish from "./pages/ElonQoshish";
 import { SearchProvider } from "./Context/SearchContext";
+import SeacherPage from "./pages/SeacherPage";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Elonlar />,
+      },
+      {
+        path: "/SeacherPage",
+        element: <SeacherPage />,
       },
       {
         path: "/kategoriyalar",
@@ -40,6 +45,7 @@ const router = createBrowserRouter([
     element: <ElonQoshish />,
   },
 ]);
+1;
 
 function App() {
   return <RouterProvider router={router} />;

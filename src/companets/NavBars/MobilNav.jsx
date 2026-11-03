@@ -1,29 +1,71 @@
-import React from "react";
-import { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { SearchContext } from "../../Context/SearchContext";
+
 function MobilNav() {
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { handleSearch, submittedSearch, setSubmittedSearch } =
+    useContext(SearchContext);
+  const [search, setSearch] = useState(submittedSearch);
 
   const isActive = (path) => location.pathname === path;
+
   return (
     <>
-      {/* ================= MOBIL TEPANGGI HEADER ================= */}
-      <div className="md:hidden bg-white/90 backdrop-blur-md border-b border-gray-100 py-3 px-5 flex items-center justify-between sticky top-0 z-40">
-        <Link
-          to="/"
-          className="text-xl font-extrabold tracking-tight text-red-600"
-        >
-          Reklama<span className="text-gray-900">.uz</span>
-        </Link>
-        <div className="flex items-center gap-3">
-          {/* Mobil tepada ham yurakcha bo'lishi qulay */}
+      {/* ================= MOBIL TEPANGGI HEADER VA QIDIRUV ================= */}
+      <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 shadow-xs">
+        {/* Top bar: Logo va Kirish tugmasi */}
+        <div className="py-2.5 px-4 flex items-center justify-between">
           <Link
-            to="/login"
-            className="text-xs font-semibold text-gray-700 bg-gray-100 active:bg-gray-200 px-3.5 py-1.5 rounded-full transition"
+            to="/"
+            className="text-xl font-black tracking-tight text-red-600"
           >
-            Kirish
+            Reklama<span className="text-gray-900">.uz</span>
           </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/login"
+              className="text-xs font-semibold text-gray-700 bg-gray-100 active:bg-gray-200 px-3.5 py-1.5 rounded-full transition-all"
+            >
+              Kirish
+            </Link>
+          </div>
+        </div>
+
+        {/* Tepadan sal pastroqda joylashgan Mobil Qidiruv Inputi */}
+        <div className="flex justify-center px-4 pb-3 pt-1">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch(search);
+            }}
+            className="flex-1 max-w-xl xl:max-w-2xl flex items-center border border-gray-300 rounded-xl overflow-hidden focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500 transition-all"
+          >
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              type="text"
+              placeholder="E'lonlar va xizmatlarni izlash..."
+              className="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none bg-transparent"
+            />
+
+            <button
+              type="submit"
+              className="bg-gray-100 hover:bg-gray-200 px-5 py-2.5 border-l border-gray-200 text-gray-600 hover:text-red-600 transition-colors flex items-center justify-center shrink-0"
+            >
+              <svg
+                className="w-5 h-5 fill-none stroke-current"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
 
@@ -79,7 +121,7 @@ function MobilNav() {
             </svg>
           </Link>
 
-          {/* Saralanganlar (Mobil pastki menyuda ham joylashtirildi) */}
+          {/* Saralanganlar */}
           <Link
             to="/saralanganlar"
             className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${
@@ -101,6 +143,8 @@ function MobilNav() {
             </svg>
             <span className="text-[10px] mt-1">Sevimlilar</span>
           </Link>
+
+          {/* Haqida */}
           <Link
             to="/biz_haqimizda"
             className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${

@@ -4,9 +4,10 @@ import MobilNav from "./MobilNav";
 import { useContext } from "react";
 import { SearchContext } from "../../Context/SearchContext";
 export default function Navbar() {
-  const { search, setSearch, handleSearch } = useContext(SearchContext);
+  const { handleSearch, submittedSearch, setSubmittedSearch } =
+    useContext(SearchContext);
+  const [search, setSearch] = useState(submittedSearch);
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = (path) => location.pathname === path;
 
@@ -42,14 +43,21 @@ export default function Navbar() {
             </svg>
             <span className="text-sm">Katalog</span>
           </Link>
-          <form className="flex-1 max-w-xl xl:max-w-2xl flex items-center border border-gray-300 rounded-xl overflow-hidden focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500 transition-all">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch(search);
+            }}
+            className="flex-1 max-w-xl xl:max-w-2xl flex items-center border border-gray-300 rounded-xl overflow-hidden focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500 transition-all"
+          >
             <input
               value={search}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               type="text"
               placeholder="E'lonlar va xizmatlarni izlash..."
               className="w-full px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none bg-transparent"
             />
+
             <button
               type="submit"
               className="bg-gray-100 hover:bg-gray-200 px-5 py-2.5 border-l border-gray-200 text-gray-600 hover:text-red-600 transition-colors flex items-center justify-center shrink-0"
