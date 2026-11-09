@@ -31,7 +31,6 @@ function ElonQoshish() {
       formData.append("location", location);
       formData.append("description", description);
 
-      // FileList ni to'g'ri massivga o'tkazib FormData'ga qo'shamiz
       if (images && images.length > 0) {
         Array.from(images).forEach((file) => {
           formData.append("images", file);
@@ -40,7 +39,7 @@ function ElonQoshish() {
       }
 
       const res = await fetch(
-        "https://reklama-backend-7.onrender.com/api/announcements/create",
+        "https://reklama-backend-ax7j.onrender.com/api/announcements/create",
         {
           method: "POST",
           body: formData,
@@ -76,6 +75,7 @@ function ElonQoshish() {
       setLocation={setLocation}
       description={description}
       setDescription={setDescription}
+      images={images}
       setImages={setImages}
       handleSubmit={handleSubmit}
     />

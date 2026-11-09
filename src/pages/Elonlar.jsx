@@ -1,12 +1,9 @@
-import React, { useContext } from "react";
 import Card from "../companets/Card";
-import { SearchContext } from "../Context/SearchContext";
 import { Link } from "react-router-dom";
 
 function Elonlar() {
-  const { search } = useContext(SearchContext);
   return (
-    <div className="bg-[#F4F5F7] min-h-screen pb-12">
+    <div className="min-h-screen pb-12">
       {/* ================= BANNER (Qidiruv bo'lmaganda ko'rinadi) ================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 my-3 sm:my-6">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-red-600 via-red-500 to-rose-600 text-white shadow-xl flex flex-col md:flex-row items-center justify-between p-6 sm:p-10">
@@ -65,7 +62,6 @@ function Elonlar() {
           <div className="absolute -left-10 -top-10 w-72 h-72 bg-black/20 rounded-full blur-3xl pointer-events-none"></div>
         </div>
       </div>
-
       {/* ================= E'LONLAR KARTALARI ================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <Card />

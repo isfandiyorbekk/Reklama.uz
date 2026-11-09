@@ -5,15 +5,18 @@ import { SearchContext } from "../Context/SearchContext";
 function Card({ searchable = false }) {
   const [data, setData] = useState([]);
   const [liked, setLiked] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(20);
 
-  // Enter bosilganda saqlangan qidiruv qiymati
+  // Har bir e'lonning joriy rasm indeksini saqlash uchun state: { [id]: index }
+  const [activeImageIndexes, setActiveImageIndexes] = useState({});
+
   const { submittedSearch } = useContext(SearchContext);
 
   useEffect(() => {
     async function getData() {
       try {
         const res = await fetch(
-          "https://reklama-backend-7.onrender.com/api/announcements/all",
+          "https://reklama-backend-ax7j.onrender.com/api/announcements/all",
         );
 
         if (!res.ok) throw new Error(`Xatolik: ${res.status}`);
@@ -35,12 +38,11 @@ function Card({ searchable = false }) {
       ignoreLocation: true,
     });
   }, [data]);
-  // Qidiruv
+
+  // Qidiruv mantiqi
   const filtered = useMemo(() => {
     if (!searchable) return data;
-
     const query = submittedSearch.trim();
-
     if (!query) return [];
 
     return fuse.search(query).map((result) => result.item);
@@ -52,17 +54,40 @@ function Card({ searchable = false }) {
     );
   }
 
+  // Keyingi rasmga o'tish
+  const handleNextImage = (e, id, totalImages) => {
+    e.stopPropagation();
+    setActiveImageIndexes((prev) => ({
+      ...prev,
+      [id]: ((prev[id] || 0) + 1) % totalImages,
+    }));
+  };
+
+  // Oldingi rasmga o'tish
+  const handlePrevImage = (e, id, totalImages) => {
+    e.stopPropagation();
+    setActiveImageIndexes((prev) => ({
+      ...prev,
+      [id]: ((prev[id] || 0) - 1 + totalImages) % totalImages,
+    }));
+  };
+
   return (
     <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 p-2 sm:grid-cols-3 sm:gap-4 sm:p-5 lg:grid-cols-4 xl:grid-cols-5">
       {filtered.length > 0 ? (
-        filtered.map((item) => {
+        filtered.slice(0, visibleCount).map((item) => {
           const id = item._id || item.id;
-          const image = item.images?.[0];
+          const images =
+            item.images && item.images.length > 0 ? item.images : [];
 
-          const imageUrl = image
-            ? image.startsWith("http")
-              ? image
-              : `https://reklama-backend-7.onrender.com${image}`
+          // Hozirgi tanlangan rasm indeksi
+          const currentIndex = activeImageIndexes[id] || 0;
+          const currentImage = images[currentIndex];
+
+          const imageUrl = currentImage
+            ? currentImage.startsWith("http")
+              ? currentImage
+              : `https://reklama-backend-ax7j.onrender.com${currentImage}`
             : "https://placehold.co/400x500?text=Rasm+yo'q";
 
           const isLiked = liked.includes(id);
@@ -84,11 +109,12 @@ function Card({ searchable = false }) {
                   }}
                 />
 
+                {/* LIKE TUGMASI */}
                 <button
                   type="button"
                   onClick={() => toggleLike(id)}
                   aria-label="Sevimlilarga qo'shish"
-                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-xs transition hover:bg-white active:scale-90"
+                  className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-xs transition hover:bg-white active:scale-90"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -105,8 +131,40 @@ function Card({ searchable = false }) {
                   </svg>
                 </button>
 
+                {/* RASMLARNI ALMASHTIRISH TUGMALARI (Agar rasmlar 1 tadan ko'p bo'lsa ko'rinadi) */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => handlePrevImage(e, id, images.length)}
+                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/60"
+                    >
+                      ❮
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleNextImage(e, id, images.length)}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/60"
+                    >
+                      ❯
+                    </button>
+
+                    {/* Rasmlar soni ko'rsatkichi (Nuqtachalar) */}
+                    <div className="absolute bottom-2 right-2 z-10 flex gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-xs">
+                      {images.map((_, idx) => (
+                        <span
+                          key={idx}
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            idx === currentIndex ? "bg-white" : "bg-white/40"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
                 {item.category && (
-                  <span className="absolute bottom-2 left-2 max-w-[85%] truncate rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">
+                  <span className="absolute bottom-2 left-2 max-w-[70%] truncate rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">
                     {item.category}
                   </span>
                 )}
@@ -145,7 +203,8 @@ function Card({ searchable = false }) {
         <div className="col-span-full py-16 text-center text-gray-500">
           <h2 className="text-xl font-semibold">E'lonlar topilmadi</h2>
           <p className="mt-2 text-sm">
-            Boshqa kalit so'z bilan qidirib ko'ring.
+            Qiduruv nomida xatolik yoki bizda hali bunday e'lon boʻlmasligi
+            mumkin
           </p>
         </div>
       )}

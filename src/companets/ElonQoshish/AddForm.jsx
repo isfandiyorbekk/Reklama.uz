@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+
 function AddForm({
   navigate,
   loading,
@@ -10,17 +11,48 @@ function AddForm({
   setLocation,
   description,
   setDescription,
+  images = [],
   setImages,
   handleSubmit,
 }) {
+  const imageInputRef = useRef(null);
+  const [previews, setPreviews] = useState([]);
+
+  // Rasmlarni ko'rsatish va xotirani tozalash
+  useEffect(() => {
+    const urls = images.map((file) => URL.createObjectURL(file));
+    setPreviews(urls);
+
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
+
+  // Yangi rasm tanlash
+  const handleImageChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    const validFiles = selectedFiles.filter((file) =>
+      file.type.startsWith("image/"),
+    );
+
+    setImages((prev) => [...prev, ...validFiles]);
+    e.target.value = "";
+  };
+
+  // Rasmni o'chirish
+  const removeImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50/50 py-8 px-4 sm:px-6 lg:px-8 select-none">
       <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-10">
+        {/* Orqaga qaytish */}
         <div className="mb-6">
           <button
             onClick={() => navigate(-1)}
             type="button"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-4 py-2 rounded-xl transition-all duration-200 active:scale-95"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer"
           >
             <svg
               className="w-4 h-4 stroke-current"
@@ -38,6 +70,7 @@ function AddForm({
           </button>
         </div>
 
+        {/* Sarlavha */}
         <div className="mb-8 border-b border-gray-100 pb-5">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
             Yangi e'lon berish
@@ -48,6 +81,7 @@ function AddForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Sarlavha input */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
               E'lon sarlavhasi <span className="text-red-500">*</span>
@@ -57,11 +91,12 @@ function AddForm({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Masalan: Do'konimda hamma mahsulot bor."
+              placeholder="Masalan: Sotiladigan smartfon iPhone 14"
               className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none text-sm text-gray-800 transition-all"
             />
           </div>
 
+          {/* Kategoriya va joylashuv */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -87,13 +122,15 @@ function AddForm({
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                Joylashuv (Location) <span className="text-red-500">*</span>
+                Joylashuv <span className="text-red-500">*</span>
               </label>
               <select
+                required
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none text-sm text-gray-800 bg-white transition-all cursor-pointer"
               >
+                <option value="">Hududni tanlang</option>
                 <option value="Toshkent">Toshkent sh.</option>
                 <option value="Samarqand">Samarqand</option>
                 <option value="Farg'ona">Farg'ona</option>
@@ -105,6 +142,7 @@ function AddForm({
             </div>
           </div>
 
+          {/* Tavsif */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
               Batafsil tavsif <span className="text-red-500">*</span>
@@ -119,28 +157,62 @@ function AddForm({
             ></textarea>
           </div>
 
+          {/* Rasmlar */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
               E'lon rasmlari
             </label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-              <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 hover:border-red-500 flex flex-col items-center justify-center cursor-pointer transition-colors bg-gray-50/50 hover:bg-red-50/30">
+            <div className="flex flex-wrap items-center gap-3">
+              {previews.map((preview, index) => (
+                <div
+                  key={index}
+                  className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-gray-100"
+                >
+                  <img
+                    src={preview}
+                    alt={`Rasm ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center text-lg shadow-md hover:bg-red-700 transition-colors cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 border-dashed border-gray-300 hover:border-red-500 hover:bg-red-50/30 flex flex-col items-center justify-center cursor-pointer transition-colors"
+              >
                 <span className="text-2xl text-gray-400 font-light">+</span>
                 <span className="text-[11px] text-gray-500 mt-0.5 font-medium">
                   Rasm qo'shish
                 </span>
-                <input
-                  type="file"
-                  name="images"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => setImages(e.target.files)}
-                />
-              </label>
+              </button>
+
+              <input
+                ref={imageInputRef}
+                type="file"
+                name="images"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageChange}
+              />
             </div>
+
+            <p className="text-xs text-gray-400 mt-2">
+              {images.length > 0
+                ? `${images.length} ta rasm tanlandi`
+                : "Rasmlarni yuklang."}
+            </p>
           </div>
 
+          {/* Submit tugmasi */}
           <button
             type="submit"
             disabled={loading}
