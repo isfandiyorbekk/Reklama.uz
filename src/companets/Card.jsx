@@ -137,14 +137,14 @@ function Card({ searchable = false }) {
                     <button
                       type="button"
                       onClick={(e) => handlePrevImage(e, id, images.length)}
-                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/60"
+                      className="absolute left-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
                     >
                       ❮
                     </button>
                     <button
                       type="button"
                       onClick={(e) => handleNextImage(e, id, images.length)}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/60"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
                     >
                       ❯
                     </button>
