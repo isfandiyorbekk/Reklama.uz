@@ -8,6 +8,9 @@ import BizHaqimizda from "./pages/Footer/BizHaqimizda";
 import ElonQoshish from "./pages/ElonQoshish";
 import { SearchProvider } from "./Context/SearchContext";
 import SeacherPage from "./pages/SeacherPage";
+import DetailPage from "./DetailPage/DetailPage";
+import Login from "./pages/Login";
+import GuestRoute from "./companets/GuestRoute";
 
 const router = createBrowserRouter([
   {
@@ -38,11 +41,24 @@ const router = createBrowserRouter([
         path: "/biz_haqimizda",
         element: <BizHaqimizda />,
       },
+      {
+        path: "/detail/:id",
+        element: <DetailPage />,
+      },
     ],
   },
   {
     path: "/qoshish",
     element: <ElonQoshish />,
+  },
+  {
+    element: <GuestRoute />,
+    children: [
+      {
+        path: "/login",
+        element: <Login />,
+      },
+    ],
   },
 ]);
 1;

@@ -1,4 +1,4 @@
-import Card from "../companets/Card";
+import Card from "../companets/SeacherCard";
 import { Link } from "react-router-dom";
 
 function Elonlar() {
@@ -63,9 +63,7 @@ function Elonlar() {
         </div>
       </div>
       {/* ================= E'LONLAR KARTALARI ================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <Card />
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-8"></div>
     </div>
   );
 }

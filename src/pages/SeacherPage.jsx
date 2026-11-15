@@ -1,10 +1,10 @@
 import React from "react";
-import Card from "../companets/Card";
+import SeacherCard from "../companets/SeacherCard";
 
 function SeacherPage() {
   return (
     <div>
-      <Card searchable />
+      <SeacherCard />
     </div>
   );
 }

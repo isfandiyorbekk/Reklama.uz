@@ -4,6 +4,7 @@ import { SearchContext } from "../../Context/SearchContext";
 import SeacherModal from "./SeacherModal";
 
 function MobilNav() {
+  const token = localStorage.getItem("token");
   const location = useLocation();
   const { handleSearch, submittedSearch } = useContext(SearchContext);
 
@@ -14,6 +15,44 @@ function MobilNav() {
 
   const isActive = (path) => location.pathname === path;
 
+  const [authStatus, setAuthStatus] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setAuthStatus(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          "https://reklama-backend-ax7j.onrender.com/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (res.ok) {
+          setAuthStatus(true);
+        } else {
+          if (res.status === 401 || res.status === 403 || res.status === 404) {
+            localStorage.removeItem("token");
+          }
+
+          setAuthStatus(false);
+        }
+      } catch (error) {
+        console.error("Auth xatosi:", error);
+        setAuthStatus(false);
+      }
+    };
+
+    checkAuth();
+  }, [location.pathname]);
   // submittedSearch o'zgarsa input ham yangilansin
   useEffect(() => {
     setSearch(submittedSearch);
@@ -55,13 +94,35 @@ function MobilNav() {
           >
             Reklama<span className="text-gray-900">.uz</span>
           </Link>
-
-          <Link
-            to="/login"
-            className="text-xs font-semibold text-gray-700 bg-gray-100 active:bg-gray-200 px-4 py-2 rounded-full"
-          >
-            Kirish
-          </Link>
+          {authStatus === null ? null : authStatus ? (
+            <Link
+              to="/profil"
+              title="Profil"
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 transition-all duration-200"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth="1.8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20 21a8 8 0 00-16 0"
+                />
+                <circle cx="12" cy="8" r="4" />
+              </svg>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="text-xs font-semibold text-gray-700 bg-gray-100 active:bg-gray-200 px-4 py-2 rounded-full"
+            >
+              Kirish
+            </Link>
+          )}
         </div>
 
         {/* MOBIL SEARCH */}

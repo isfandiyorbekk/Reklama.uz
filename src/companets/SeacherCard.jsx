@@ -1,86 +1,26 @@
-import { useState, useEffect, useMemo, useContext } from "react";
-import Fuse from "fuse.js";
+import { useContext } from "react";
 import { SearchContext } from "../Context/SearchContext";
+import { Link } from "react-router-dom";
 
-function Card({ searchable = false }) {
-  const [data, setData] = useState([]);
-  const [liked, setLiked] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(20);
-
-  // Har bir e'lonning joriy rasm indeksini saqlash uchun state: { [id]: index }
-  const [activeImageIndexes, setActiveImageIndexes] = useState({});
-
-  const { submittedSearch } = useContext(SearchContext);
-
-  useEffect(() => {
-    async function getData() {
-      try {
-        const res = await fetch(
-          "https://reklama-backend-ax7j.onrender.com/api/announcements/all",
-        );
-
-        if (!res.ok) throw new Error(`Xatolik: ${res.status}`);
-
-        const result = await res.json();
-        setData(Array.isArray(result) ? result : result.data || []);
-      } catch (error) {
-        console.error(error.message);
-      }
-    }
-
-    getData();
-  }, []);
-
-  const fuse = useMemo(() => {
-    return new Fuse(data, {
-      keys: ["title", "category", "location", "description"],
-      threshold: 0.4,
-      ignoreLocation: true,
-    });
-  }, [data]);
-
-  // Qidiruv mantiqi
-  const filtered = useMemo(() => {
-    if (!searchable) return data;
-    const query = submittedSearch.trim();
-    if (!query) return [];
-
-    return fuse.search(query).map((result) => result.item);
-  }, [searchable, submittedSearch, fuse, data]);
-
-  function toggleLike(id) {
-    setLiked((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
-  }
-
-  // Keyingi rasmga o'tish
-  const handleNextImage = (e, id, totalImages) => {
-    e.stopPropagation();
-    setActiveImageIndexes((prev) => ({
-      ...prev,
-      [id]: ((prev[id] || 0) + 1) % totalImages,
-    }));
-  };
-
-  // Oldingi rasmga o'tish
-  const handlePrevImage = (e, id, totalImages) => {
-    e.stopPropagation();
-    setActiveImageIndexes((prev) => ({
-      ...prev,
-      [id]: ((prev[id] || 0) - 1 + totalImages) % totalImages,
-    }));
-  };
+function SeacherCard() {
+  const {
+    filtered,
+    liked,
+    toggleLike,
+    visibleCount,
+    activeImageIndexes,
+    handleNextImage,
+    handlePrevImage,
+  } = useContext(SearchContext);
 
   return (
     <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 p-2 sm:grid-cols-3 sm:gap-4 sm:p-5 lg:grid-cols-4 xl:grid-cols-5">
       {filtered.length > 0 ? (
         filtered.slice(0, visibleCount).map((item) => {
           const id = item._id || item.id;
-          const images =
-            item.images && item.images.length > 0 ? item.images : [];
 
-          // Hozirgi tanlangan rasm indeksi
+          const images = item.images?.length > 0 ? item.images : [];
+
           const currentIndex = activeImageIndexes[id] || 0;
           const currentImage = images[currentIndex];
 
@@ -109,7 +49,7 @@ function Card({ searchable = false }) {
                   }}
                 />
 
-                {/* LIKE TUGMASI */}
+                {/* LIKE */}
                 <button
                   type="button"
                   onClick={() => toggleLike(id)}
@@ -131,25 +71,27 @@ function Card({ searchable = false }) {
                   </svg>
                 </button>
 
-                {/* RASMLARNI ALMASHTIRISH TUGMALARI (Agar rasmlar 1 tadan ko'p bo'lsa ko'rinadi) */}
+                {/* RASMLARNI ALMASHTIRISH */}
                 {images.length > 1 && (
                   <>
                     <button
                       type="button"
                       onClick={(e) => handlePrevImage(e, id, images.length)}
+                      aria-label="Oldingi rasm"
                       className="absolute left-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
                     >
                       ❮
                     </button>
+
                     <button
                       type="button"
                       onClick={(e) => handleNextImage(e, id, images.length)}
+                      aria-label="Keyingi rasm"
                       className="absolute right-1 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
                     >
                       ❯
                     </button>
 
-                    {/* Rasmlar soni ko'rsatkichi (Nuqtachalar) */}
                     <div className="absolute bottom-2 right-2 z-10 flex gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-xs">
                       {images.map((_, idx) => (
                         <span
@@ -188,12 +130,12 @@ function Card({ searchable = false }) {
                     </span>
                   </div>
 
-                  <button
-                    type="button"
+                  <Link
+                    to={`/detail/${id}`}
                     className="mt-2.5 flex w-full items-center justify-center rounded-xl bg-[#FF0000] py-2 text-xs font-medium text-white transition hover:bg-[#D60000] active:scale-[0.98]"
                   >
                     Batafsil
-                  </button>
+                  </Link>
                 </div>
               </div>
             </article>
@@ -202,9 +144,10 @@ function Card({ searchable = false }) {
       ) : (
         <div className="col-span-full py-16 text-center text-gray-500">
           <h2 className="text-xl font-semibold">E'lonlar topilmadi</h2>
+
           <p className="mt-2 text-sm">
-            Qiduruv nomida xatolik yoki bizda hali bunday e'lon boʻlmasligi
-            mumkin
+            Qidiruv nomida xatolik yoki bizda hali bunday e'lon bo'lmasligi
+            mumkin.
           </p>
         </div>
       )}
@@ -212,4 +155,4 @@ function Card({ searchable = false }) {
   );
 }
 
-export default Card;
+export default SeacherCard;

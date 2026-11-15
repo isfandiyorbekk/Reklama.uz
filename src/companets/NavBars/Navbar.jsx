@@ -5,11 +5,51 @@ import { SearchContext } from "../../Context/SearchContext";
 import SeacherModal from "./SeacherModal";
 
 export default function Navbar() {
+  const token = localStorage.getItem("token");
+
   const { handleSearch, submittedSearch } = useContext(SearchContext);
   const [search, setSearch] = useState(submittedSearch);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const searchRef = useRef(null);
   const location = useLocation();
+  const [authStatus, setAuthStatus] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setAuthStatus(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          "https://reklama-backend-ax7j.onrender.com/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (res.ok) {
+          setAuthStatus(true);
+        } else {
+          if (res.status === 401 || res.status === 403 || res.status === 404) {
+            localStorage.removeItem("token");
+          }
+
+          setAuthStatus(false);
+        }
+      } catch (error) {
+        console.error("Auth xatosi:", error);
+        setAuthStatus(false);
+      }
+    };
+
+    checkAuth();
+  }, [location.pathname]);
 
   // Tashqariga bosilganda modalni yopish
   useEffect(() => {
@@ -120,24 +160,48 @@ export default function Navbar() {
               <span className="hidden lg:inline">Saralanganlar</span>
             </Link>
 
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:text-red-600 bg-gray-100 hover:bg-red-50 border border-gray-200 hover:border-red-200 rounded-full transition-all duration-200 active:scale-95"
-            >
-              <svg
-                className="w-4 h-4 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
+            {authStatus === null ? null : authStatus ? (
+              <Link
+                to="/profil"
+                title="Profil"
+                className="w-11 h-11 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 transition-all duration-200"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                />
-              </svg>
-              <span>Kirish</span>
-            </Link>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.8"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20 21a8 8 0 00-16 0"
+                  />
+                  <circle cx="12" cy="8" r="4" />
+                </svg>
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:text-red-600 bg-gray-100 hover:bg-red-50 border border-gray-200 hover:border-red-200 rounded-full transition-all duration-200 active:scale-95"
+              >
+                <svg
+                  className="w-4 h-4 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                  />
+                </svg>
+
+                <span>Kirish</span>
+              </Link>
+            )}
 
             <Link
               to="/qoshish"

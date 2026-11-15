@@ -1,50 +1,18 @@
-import React, { useEffect, useState, useMemo, useContext } from "react";
-import Fuse from "fuse.js";
+import React, { useContext } from "react";
 import { SearchContext } from "../../Context/SearchContext";
 
-export default function SeacherModal({ search, onClose }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { handleSearch } = useContext(SearchContext);
+export default function SeacherModal({ search = "", onClose }) {
+  const { handleSearch, loading, getSearchResults } = useContext(SearchContext);
 
-  // Backenddan e'lonlarni yuklab olish
-  useEffect(() => {
-    async function getData() {
-      try {
-        const res = await fetch(
-          "https://reklama-backend-ax7j.onrender.com/api/announcements/all",
-        );
-        if (!res.ok) throw new Error(`Xatolik: ${res.status}`);
-        const result = await res.json();
-        setData(Array.isArray(result) ? result : result.data || []);
-      } catch (error) {
-        console.error("Modal backend xatoligi:", error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    getData();
-  }, []);
+  const searchResults = getSearchResults(search);
 
-  // Fuse.js sozlamasi (Card.jsx bilan bir xil)
-  const fuse = useMemo(() => {
-    return new Fuse(data, {
-      keys: ["title", "category", "location", "description"],
-      threshold: 0.4,
-      ignoreLocation: true,
-    });
-  }, [data]);
-
-  // Qidiruv natijalari
-  const searchResults = useMemo(() => {
-    const query = search.trim();
-    if (!query) return [];
-    return fuse.search(query).map((result) => result.item);
-  }, [search, fuse]);
-
+  // E'lon tanlanganda
   const handleSelect = (title) => {
     handleSearch(title);
-    if (onClose) onClose();
+
+    if (onClose) {
+      onClose();
+    }
   };
 
   return (
@@ -54,7 +22,6 @@ export default function SeacherModal({ search, onClose }) {
           Ma'lumotlar yuklanmoqda...
         </div>
       ) : search.trim() === "" ? (
-        /* Input bo'sh bo'lganda ko'rinadigan qism */
         <div className="p-3">
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2 px-1">
             Qidiring...
@@ -65,8 +32,10 @@ export default function SeacherModal({ search, onClose }) {
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1 px-2">
             Qidiruv natijalari ({searchResults.length})
           </span>
+
           {searchResults.map((item) => {
             const id = item._id || item.id;
+
             return (
               <div
                 key={id}
@@ -78,6 +47,7 @@ export default function SeacherModal({ search, onClose }) {
                     <p className="text-sm font-medium text-gray-800 group-hover:text-red-600 transition-colors truncate">
                       {item.title || "Sarlavhasiz e'lon"}
                     </p>
+
                     <span className="text-xs text-gray-400 block truncate">
                       {item.category || "Kategoriyasiz"} •{" "}
                       {item.location || "Toshkent"}
@@ -89,9 +59,15 @@ export default function SeacherModal({ search, onClose }) {
           })}
         </div>
       ) : (
-        /* Hech narsa topilmaganda */
-        <div onClick={onClose} className="p-6 text-sm text-gray-500">
+        <div
+          onClick={onClose}
+          className="p-6 text-sm text-gray-500 cursor-pointer"
+        >
           <span className="font-semibold text-gray-700">{search}</span>
+
+          <p className="mt-1 text-xs text-gray-400">
+            Hech qanday e'lon topilmadi.
+          </p>
         </div>
       )}
     </div>
