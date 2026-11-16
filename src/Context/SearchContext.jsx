@@ -155,7 +155,7 @@ export function SearchProvider({ children }) {
         handleSearch,
         submittedSearch,
         setSubmittedSearch,
-
+        setData,
         data,
         loading,
         filtered,
