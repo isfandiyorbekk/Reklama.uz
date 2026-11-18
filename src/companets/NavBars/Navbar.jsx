@@ -3,10 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import MobilNav from "./MobilNav";
 import { SearchContext } from "../../Context/SearchContext";
 import SeacherModal from "./SeacherModal";
+import ProfilModal from "./ProfilModal";
 
 export default function Navbar() {
-  const token = localStorage.getItem("token");
-
+  const [isProfilModal, setProfilModal] = useState(false);
   const { handleSearch, submittedSearch } = useContext(SearchContext);
   const [search, setSearch] = useState(submittedSearch);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +61,6 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   return (
     <>
       <nav className="w-full bg-white border-b border-gray-200 hidden md:block sticky top-0 z-50 shadow-sm select-none">
@@ -161,26 +160,34 @@ export default function Navbar() {
             </Link>
 
             {authStatus === null ? null : authStatus ? (
-              <Link
-                to="/profil"
-                title="Profil"
-                className="w-11 h-11 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 transition-all duration-200"
+              <div
+                className="relative"
+                onMouseEnter={() => setProfilModal(true)}
+                onMouseLeave={() => setProfilModal(false)}
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.8"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M20 21a8 8 0 00-16 0"
-                  />
-                  <circle cx="12" cy="8" r="4" />
-                </svg>
-              </Link>
+                <button className="cursor-pointer w-11 h-11 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 transition-all duration-200">
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.8"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M20 21a8 8 0 00-16 0"
+                    />
+                    <circle cx="12" cy="8" r="4" />
+                  </svg>
+                </button>
+
+                {isProfilModal && (
+                  <div className="absolute right-0 top-full z-50">
+                    <ProfilModal />
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 to="/login"

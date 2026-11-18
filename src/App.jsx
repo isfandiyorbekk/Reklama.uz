@@ -1,5 +1,6 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
 import Elonlar from "./pages/Elonlar";
 import MainLayout from "./layouts/MainLayout";
 import Kategoriyalar from "./pages/Kategoriyalar";
@@ -11,6 +12,7 @@ import SeacherPage from "./pages/SeacherPage";
 import DetailPage from "./DetailPage/DetailPage";
 import Login from "./pages/Login";
 import GuestRoute from "./companets/GuestRoute";
+import Saralanganlar from "./pages/Saralanganlar";
 
 const router = createBrowserRouter([
   {
@@ -26,24 +28,28 @@ const router = createBrowserRouter([
         element: <Elonlar />,
       },
       {
-        path: "/SeacherPage",
+        path: "SeacherPage",
         element: <SeacherPage />,
       },
       {
-        path: "/kategoriyalar",
+        path: "kategoriyalar",
         element: <Kategoriyalar />,
       },
       {
-        path: "/xizmatlar",
+        path: "xizmatlar",
         element: <Xizmatlar />,
       },
       {
-        path: "/biz_haqimizda",
+        path: "biz_haqimizda",
         element: <BizHaqimizda />,
       },
       {
-        path: "/detail/:id",
+        path: "detail/:id",
         element: <DetailPage />,
+      },
+      {
+        path: "saralanganlar",
+        element: <Saralanganlar />,
       },
     ],
   },
@@ -61,7 +67,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-1;
 
 function App() {
   return <RouterProvider router={router} />;
