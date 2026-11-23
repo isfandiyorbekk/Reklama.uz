@@ -1,11 +1,12 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useProfil } from "../Context/ProfilContext";
 function Login() {
   const navigate = useNavigate();
   const Name = useRef();
   const LastName = useRef();
   const Number = useRef();
-
+  const { setUser } = useProfil();
   async function User(e) {
     e.preventDefault();
 
@@ -27,7 +28,7 @@ function Login() {
 
       const data = await res.json();
       localStorage.setItem("token", data.token);
-
+      setUser(data.user);
       if (!res.ok) {
         throw new Error(data.message || "Xatolik yuz berdi");
       }

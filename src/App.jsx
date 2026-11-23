@@ -13,6 +13,8 @@ import DetailPage from "./DetailPage/DetailPage";
 import Login from "./pages/Login";
 import GuestRoute from "./companets/GuestRoute";
 import Saralanganlar from "./pages/Saralanganlar";
+import MeningProfilim from "./pages/Profil/MeningProfilim";
+import MeningElonlarim from "./pages/Profil/MeningElonlarim";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +52,15 @@ const router = createBrowserRouter([
       {
         path: "saralanganlar",
         element: <Saralanganlar />,
+      },
+
+      {
+        path: "/profil",
+        element: <MeningProfilim />,
+      },
+      {
+        path: "mening-elonlarim",
+        element: <MeningElonlarim />,
       },
     ],
   },

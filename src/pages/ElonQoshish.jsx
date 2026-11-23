@@ -95,6 +95,7 @@ function ElonQoshish() {
       if (res.ok) {
         alert("E'lon muvaffaqiyatli joylandi!");
         navigate("/");
+        window.location.reload();
       } else if (res.status === 401 || res.status === 403) {
         localStorage.removeItem("token");
         setAuthorized(false);

@@ -13,6 +13,7 @@ function MobilNav() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const searchRef = useRef(null);
+  const profileRef = useRef(null); // Profil modal uchun ref
 
   const isActive = (path) => location.pathname === path;
 
@@ -54,16 +55,20 @@ function MobilNav() {
 
     checkAuth();
   }, [location.pathname]);
+
   // submittedSearch o'zgarsa input ham yangilansin
   useEffect(() => {
     setSearch(submittedSearch);
   }, [submittedSearch]);
 
-  // Tashqariga bosilganda modal yopiladi
+  // Tashqariga bosilganda modal yopiladi (ham qidiruv, ham profil uchun)
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setIsModalOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfilModal(false);
       }
     }
 
@@ -96,12 +101,11 @@ function MobilNav() {
             Reklama<span className="text-gray-900">.uz</span>
           </Link>
           {authStatus === null ? null : authStatus ? (
-            <div
-              className="relative"
-              onMouseEnter={() => setProfilModal(true)}
-              onMouseLeave={() => setProfilModal(false)}
-            >
-              <button className="cursor-pointer w-11 h-11 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 transition-all duration-200">
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setProfilModal((prev) => !prev)}
+                className="cursor-pointer w-11 h-11 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 transition-all duration-200"
+              >
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -120,7 +124,7 @@ function MobilNav() {
 
               {isProfilModal && (
                 <div className="absolute right-0 top-full z-50">
-                  <ProfilModal />
+                  <ProfilModal setProfilModal={setProfilModal} />
                 </div>
               )}
             </div>
