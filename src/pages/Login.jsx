@@ -1,14 +1,20 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfil } from "../Context/ProfilContext";
+
 function Login() {
   const navigate = useNavigate();
   const Name = useRef();
   const LastName = useRef();
   const Number = useRef();
   const { setUser } = useProfil();
+
+  // Loading holati uchun state ochamiz
+  const [loading, setLoading] = useState(false);
+
   async function User(e) {
     e.preventDefault();
+    setLoading(true); // So'rov boshlanganda loadingni yoqamiz
 
     try {
       const res = await fetch(
@@ -27,26 +33,30 @@ function Login() {
       );
 
       const data = await res.json();
-      localStorage.setItem("token", data.token);
-      setUser(data.user);
+
       if (!res.ok) {
         throw new Error(data.message || "Xatolik yuz berdi");
       }
 
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
+
       alert("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
       navigate(-1);
+
       Name.current.value = "";
       LastName.current.value = "";
       Number.current.value = "";
     } catch (error) {
       console.log("Xato:", error);
       alert(error.message || "Server bilan bog'lanishda xatolik!");
+    } finally {
+      setLoading(false); // So'rov tugagach (muvaffaqiyatli yoki xato bo'lsa ham) loadingni o'chiramiz
     }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      {" "}
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl border border-gray-100">
         <div className="text-center">
           <h2 className="text-4xl font-extrabold tracking-tight">
@@ -70,8 +80,9 @@ function Login() {
                 ref={Name}
                 type="text"
                 required
+                disabled={loading} // Yuklanayotganda inputlarni ham bloklash mumkin
                 placeholder="Ismingizni kiriting"
-                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all text-sm"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all text-sm disabled:bg-gray-100"
               />
             </div>
 
@@ -84,8 +95,9 @@ function Login() {
                 ref={LastName}
                 type="text"
                 required
+                disabled={loading}
                 placeholder="Familiyangizni kiriting"
-                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all text-sm"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all text-sm disabled:bg-gray-100"
               />
             </div>
 
@@ -98,8 +110,9 @@ function Login() {
                 ref={Number}
                 type="tel"
                 required
+                disabled={loading}
                 placeholder="+998901234567"
-                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all text-sm"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all text-sm disabled:bg-gray-100"
               />
             </div>
           </div>
@@ -107,9 +120,32 @@ function Login() {
           <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
+              disabled={loading} // Yuklanayotganda tugma bosilmaydigan bo'ladi
+              className="group relative flex w-full justify-center items-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg disabled:bg-red-400 disabled:cursor-not-allowed"
             >
-              Ro'yxatdan o'tish
+              {loading && (
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              )}
+              {loading ? "Yuklanmoqda..." : "Ro'yxatdan o'tish"}
             </button>
           </div>
         </form>
