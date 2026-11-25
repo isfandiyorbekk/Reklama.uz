@@ -94,7 +94,7 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 text-xs text-gray-500 text-center">
+      <div className="pb-12 sm:pb-0 max-w-7xl mx-auto pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 text-xs text-gray-500 text-center">
         <p>
           © {new Date().getFullYear()} Reklama.uz. Barcha huquqlar himoyalangan.
         </p>
